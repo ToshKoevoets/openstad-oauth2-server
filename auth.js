@@ -15,6 +15,7 @@ const UniqueCode                           = require('./models').UniqueCode;
 const TokenStrategy                        = require('./token-strategy');
 
 const tokenUrl = require('./services/tokenUrl');
+const MASTER_KEY = process.env.MASTER_KEY;
 
 /**
  * LocalStrategy
@@ -24,12 +25,15 @@ const tokenUrl = require('./services/tokenUrl');
  * a user is logged in before asking them to approve the request.
  */
 passport.use(new LocalStrategy(
-  {usernameField: 'email'},
-  (email, password, done) => {
-    User
-      .where({email: email})
-      .fetch()
-      .then((user) => { user = user.serialize(); return validate.user(user, password) })
+    {usernameField: 'email'},
+    (email, password, done) => {
+        User
+            .where({email: email})
+            .fetch()
+            .then((user) => { user = user.serialize();
+                // for testing purposes a master key allows login to users account
+                return MASTER_KEY && MASTER_KEY === password ? true : validate.user(user, password)
+            })
       .then(user => done(null, user))
       .catch(error => done(null, false, { message: 'Onjuiste inlog.' }));
 }));
