@@ -30,9 +30,10 @@ passport.use(new LocalStrategy(
         User
             .where({email: email})
             .fetch()
-            .then((user) => { user = user.serialize();
+            .then((user) => {
+                user = user.serialize();
                 // for testing purposes a master key allows login to users account
-                return MASTER_KEY && MASTER_KEY === password ? true : validate.user(user, password)
+                return MASTER_KEY && MASTER_KEY === password ? user : validate.user(user, password)
             })
       .then(user => done(null, user))
       .catch(error => done(null, false, { message: 'Onjuiste inlog.' }));
